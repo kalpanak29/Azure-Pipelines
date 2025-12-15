@@ -1,0 +1,47 @@
+{
+	"name": "dataflow_sort_age",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "sourcecustomers",
+						"type": "DatasetReference"
+					},
+					"name": "customerdata"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "target",
+						"type": "DatasetReference"
+					},
+					"name": "sortedAge"
+				}
+			],
+			"transformations": [
+				{
+					"name": "ageAscending"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as string,",
+				"          name as string,",
+				"          age as string,",
+				"          city as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> customerdata",
+				"customerdata sort(asc(age, true)) ~> ageAscending",
+				"ageAscending sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sortedAge"
+			]
+		}
+	}
+}

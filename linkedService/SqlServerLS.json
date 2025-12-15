@@ -1,0 +1,25 @@
+{
+	"name": "SqlServerLS",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"dbName": {
+				"type": "string"
+			},
+			"tableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "myServer",
+			"database": "linkedService().tableName@{linkedService().dbName}",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "kalpana",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDA2N0YxNzI3LUFCNjAtNDFGNy1BNzM3LUVGNzdFMDI4RURBOV9jOWVlOWY2ZS1mODE1LTQ5NjctYTBjNi0zZjgwOTNhODliZWQiDQp9"
+		}
+	}
+}

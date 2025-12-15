@@ -1,0 +1,96 @@
+{
+	"name": "logic_app_pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "BlobtoSQLServer",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "sourcecustomers",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "targetadls",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "senderror",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "BlobtoSQLServer",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": "https://prod-04.northcentralus.logic.azure.com:443/workflows/d87297b89732419dadc1a83607ef7599/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=BKr96tLLwzaAouHnmamJWEkjMjZ6nDZTuMOuc9nrT30",
+					"body": {
+						"value": "{\n                        \"PipelineName\": \"@{pipeline().Pipeline}\",\n                        \"DataFactoryName\": \"@{pipeline().Pipeline}\",\n                        \"RunIDs\":\"@{pipeline().RunId}\",\n                        \"ErrorMessage\": \"@{activity('BlobtoSQLServer').output.errors[0].Message}\"\n}",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-11-22T08:06:20Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

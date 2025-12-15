@@ -1,0 +1,9 @@
+{
+	"name": "kalpanaadf123456",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "092171d6-e098-47ed-8ad3-d634208eaf7d",
+		"tenantId": "842e4e0e-1c63-4147-b5bc-2b8baed2f998"
+	}
+}

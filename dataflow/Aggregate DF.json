@@ -1,0 +1,45 @@
+{
+	"name": "Aggregate DF",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "customerDataset",
+						"type": "DatasetReference"
+					},
+					"name": "customersDataset"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "AggeregateonGender"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          CustomerKey as string,",
+				"          Prefix as string,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          BirthDate as string,",
+				"          MaritalStatus as string,",
+				"          Gender as string,",
+				"          EmailAddress as string,",
+				"          AnnualIncome as string,",
+				"          TotalChildren as string,",
+				"          EducationLevel as string,",
+				"          Occupation as string,",
+				"          HomeOwner as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> customersDataset",
+				"customersDataset aggregate(groupBy(Gender),",
+				"     {Total Customers} = count(CustomerKey)) ~> AggeregateonGender"
+			]
+		}
+	}
+}

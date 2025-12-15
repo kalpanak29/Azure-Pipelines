@@ -12,7 +12,19 @@
 					"name": "customersDataset"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AggeregateCustomers",
+						"type": "DatasetReference"
+					},
+					"name": "AggregateCustomers",
+					"rejectedDataLinkedService": {
+						"referenceName": "NewLinkedService",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
 			"transformations": [
 				{
 					"name": "AggeregateonGender"
@@ -38,7 +50,15 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> customersDataset",
 				"customersDataset aggregate(groupBy(Gender),",
-				"     {Total Customers} = count(CustomerKey)) ~> AggeregateonGender"
+				"     {Total Customers} = count(CustomerKey)) ~> AggeregateonGender",
+				"AggeregateonGender sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          Gender,",
+				"          {Total Customers}",
+				"     )) ~> AggregateCustomers"
 			]
 		}
 	}

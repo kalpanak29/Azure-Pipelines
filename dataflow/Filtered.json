@@ -1,0 +1,68 @@
+{
+	"name": "Filtered",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "customerDataset",
+						"type": "DatasetReference"
+					},
+					"name": "customerDataset"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "FilteredDataet",
+						"type": "DatasetReference"
+					},
+					"name": "sink1",
+					"rejectedDataLinkedService": {
+						"referenceName": "NewLinkedService",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [
+				{
+					"name": "filter1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          CustomerKey as string,",
+				"          Prefix as string,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          BirthDate as string,",
+				"          MaritalStatus as string,",
+				"          Gender as string,",
+				"          EmailAddress as string,",
+				"          AnnualIncome as string,",
+				"          TotalChildren as string,",
+				"          EducationLevel as string,",
+				"          Occupation as string,",
+				"          HomeOwner as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> customerDataset",
+				"customerDataset filter(Gender == 'M') ~> filter1",
+				"filter1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['Filtered Customers Data'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          CustomerKey,",
+				"          FirstName,",
+				"          LastName,",
+				"          Gender",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}

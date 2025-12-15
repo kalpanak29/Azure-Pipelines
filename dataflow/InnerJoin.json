@@ -1,0 +1,80 @@
+{
+	"name": "InnerJoin",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "customerDataset",
+						"type": "DatasetReference"
+					},
+					"name": "customerDataset"
+				},
+				{
+					"dataset": {
+						"referenceName": "sales2015",
+						"type": "DatasetReference"
+					},
+					"name": "sales2015"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "outputDataset",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          CustomerKey as string,",
+				"          Prefix as string,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          BirthDate as string,",
+				"          MaritalStatus as string,",
+				"          Gender as string,",
+				"          EmailAddress as string,",
+				"          AnnualIncome as string,",
+				"          TotalChildren as string,",
+				"          EducationLevel as string,",
+				"          Occupation as string,",
+				"          HomeOwner as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> customerDataset",
+				"source(output(",
+				"          OrderDate as string,",
+				"          StockDate as string,",
+				"          OrderNumber as string,",
+				"          ProductKey as string,",
+				"          CustomerKey as string,",
+				"          TerritoryKey as string,",
+				"          OrderLineItem as string,",
+				"          OrderQuantity as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sales2015",
+				"customerDataset, sales2015 join(customerDataset@CustomerKey == sales2015@CustomerKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

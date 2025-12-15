@@ -29,6 +29,74 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/sourcecustomers')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Custowhsdgyw.csv",
+						"container": "source"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "id",
+						"type": "String"
+					},
+					{
+						"name": "name",
+						"type": "String"
+					},
+					{
+						"name": "age",
+						"type": "String"
+					},
+					{
+						"name": "city",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/target')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "target"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/targetadls')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -76,32 +144,6 @@
 					"referenceName": "integrationRuntime1",
 					"type": "IntegrationRuntimeReference"
 				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/FilteredCustomers')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "NewLinkedService",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": "DF_output",
-						"container": "adlscontainer"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
 			},
 			"dependsOn": []
 		},
@@ -231,6 +273,7 @@
 				"lastPublishTime": "2025-12-12T12:39:00Z"
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sourcecustomers')]",
 				"[concat(variables('factoryId'), '/datasets/targetadls')]"
 			]
 		},
@@ -588,6 +631,7 @@
 				"lastPublishTime": "2025-12-12T12:39:00Z"
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sourcecustomers')]",
 				"[concat(variables('factoryId'), '/datasets/targetadls')]"
 			]
 		},
@@ -664,7 +708,10 @@
 				"annotations": [],
 				"lastPublishTime": "2025-11-21T10:04:45Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sourcecustomers')]",
+				"[concat(variables('factoryId'), '/datasets/target')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/delete pipeline')]",
@@ -833,6 +880,7 @@
 				"lastPublishTime": "2025-11-22T05:32:54Z"
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sourcecustomers')]",
 				"[concat(variables('factoryId'), '/datasets/targetadls')]"
 			]
 		},
@@ -939,6 +987,7 @@
 				"lastPublishTime": "2025-11-22T08:06:20Z"
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sourcecustomers')]",
 				"[concat(variables('factoryId'), '/datasets/targetadls')]"
 			]
 		},
@@ -1016,6 +1065,7 @@
 				"lastPublishTime": "2025-11-21T10:48:27Z"
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sourcecustomers')]",
 				"[concat(variables('factoryId'), '/datasets/targetadls')]"
 			]
 		},
@@ -1058,6 +1108,148 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/SqlServer1')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Filtere')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "customerDataset",
+								"type": "DatasetReference"
+							},
+							"name": "customerDataset"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "FilteredCustomers",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"rejectedDataLinkedService": {
+								"referenceName": "NewLinkedService",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          CustomerKey as string,",
+						"          Prefix as string,",
+						"          FirstName as string,",
+						"          LastName as string,",
+						"          BirthDate as string,",
+						"          MaritalStatus as string,",
+						"          Gender as string,",
+						"          EmailAddress as string,",
+						"          AnnualIncome as string,",
+						"          TotalChildren as string,",
+						"          EducationLevel as string,",
+						"          Occupation as string,",
+						"          HomeOwner as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> customerDataset",
+						"customerDataset filter(Gender == 'M') ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Filtered Customers Data'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          CustomerKey,",
+						"          FirstName,",
+						"          LastName,",
+						"          Gender",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Filtered')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "customerDataset",
+								"type": "DatasetReference"
+							},
+							"name": "customerDataset"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "FilteredCustomers",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"rejectedDataLinkedService": {
+								"referenceName": "NewLinkedService",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          CustomerKey as string,",
+						"          Prefix as string,",
+						"          FirstName as string,",
+						"          LastName as string,",
+						"          BirthDate as string,",
+						"          MaritalStatus as string,",
+						"          Gender as string,",
+						"          EmailAddress as string,",
+						"          AnnualIncome as string,",
+						"          TotalChildren as string,",
+						"          EducationLevel as string,",
+						"          Occupation as string,",
+						"          HomeOwner as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> customerDataset",
+						"customerDataset filter(Gender == 'M') ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Filtered Customers Data'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          CustomerKey,",
+						"          FirstName,",
+						"          LastName,",
+						"          Gender",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/InnerJoin')]",
@@ -1204,79 +1396,9 @@
 					]
 				}
 			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Filtered')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "customerDataset",
-								"type": "DatasetReference"
-							},
-							"name": "customerDataset"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "FilteredCustomers",
-								"type": "DatasetReference"
-							},
-							"name": "sink1",
-							"rejectedDataLinkedService": {
-								"referenceName": "NewLinkedService",
-								"type": "LinkedServiceReference"
-							}
-						}
-					],
-					"transformations": [
-						{
-							"name": "filter1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          CustomerKey as string,",
-						"          Prefix as string,",
-						"          FirstName as string,",
-						"          LastName as string,",
-						"          BirthDate as string,",
-						"          MaritalStatus as string,",
-						"          Gender as string,",
-						"          EmailAddress as string,",
-						"          AnnualIncome as string,",
-						"          TotalChildren as string,",
-						"          EducationLevel as string,",
-						"          Occupation as string,",
-						"          HomeOwner as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> customerDataset",
-						"customerDataset filter(Gender == 'M') ~> filter1",
-						"filter1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Filtered Customers Data'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     mapColumn(",
-						"          CustomerKey,",
-						"          FirstName,",
-						"          LastName,",
-						"          Gender",
-						"     ),",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/FilteredCustomers')]"
+				"[concat(variables('factoryId'), '/datasets/sourcecustomers')]",
+				"[concat(variables('factoryId'), '/datasets/target')]"
 			]
 		},
 		{
@@ -1311,124 +1433,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/pipeline_adls')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_pipe_sort_age')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow_sort_age",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"customerdata": {},
-									"sortedAge": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2025-11-22T08:06:20Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow_sort_age')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "SqlServerSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "SqlServerTable1",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "DelimitedText1",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2025-11-21T12:44:20Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SqlServerTable1')]"
 			]
 		},
 		{
@@ -1476,6 +1480,53 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/InnerJoin')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_pipe_sort_age')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_sort_age",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"customerdata": {},
+									"sortedAge": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-11-22T08:06:20Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_sort_age')]"
 			]
 		}
 	]

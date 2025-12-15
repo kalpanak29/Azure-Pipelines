@@ -1,5 +1,5 @@
 {
-	"name": "Filtered dataset",
+	"name": "Filtere",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -49,7 +49,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> customerDataset",
-				"customerDataset filter(AnnualIncome >= 30000) ~> filter1",
+				"customerDataset filter(Gender == 'M') ~> filter1",
 				"filter1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['Filtered Customers Data'],",
@@ -58,7 +58,8 @@
 				"     mapColumn(",
 				"          CustomerKey,",
 				"          FirstName,",
-				"          LastName",
+				"          LastName,",
+				"          Gender",
 				"     ),",
 				"     partitionBy('hash', 1)) ~> sink1"
 			]

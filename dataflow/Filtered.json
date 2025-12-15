@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "FilteredDataet",
+						"referenceName": "FilteredCustomers",
 						"type": "DatasetReference"
 					},
 					"name": "sink1",

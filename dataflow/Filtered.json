@@ -52,7 +52,7 @@
 				"customerDataset filter(Gender == 'M') ~> filter1",
 				"filter1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     partitionFileNames:['Filtered Customers Data'],",
+				"     partitionFileNames:['FilteredCustomersData'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     mapColumn(",

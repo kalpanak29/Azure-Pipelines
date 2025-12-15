@@ -72,8 +72,22 @@
 				"     broadcast: 'auto')~> join1",
 				"join1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     partitionFileNames:['InnerJoin of customers and sales2015'],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          CustomerKey = customerDataset@CustomerKey,",
+				"          FirstName,",
+				"          LastName,",
+				"          MaritalStatus,",
+				"          Gender,",
+				"          AnnualIncome,",
+				"          OrderDate,",
+				"          ProductKey,",
+				"          OrderLineItem,",
+				"          OrderQuantity",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}

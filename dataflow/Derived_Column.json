@@ -1,0 +1,39 @@
+{
+	"name": "Derived_Column",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "empDataset",
+						"type": "DatasetReference"
+					},
+					"name": "empData"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeID as string,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          DepartmentID as string,",
+				"          Salary as string,",
+				"          JoinDate as string,",
+				"          City as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> empData",
+				"empData derive({Full Name} = concat(FirstName, LastName),",
+				"     partitionBy('hash', 1)) ~> derivedColumn1"
+			]
+		}
+	}
+}

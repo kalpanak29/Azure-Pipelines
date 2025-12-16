@@ -1,0 +1,58 @@
+{
+	"name": "dataflow2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "HREmployee",
+						"type": "DatasetReference"
+					},
+					"name": "HREmp"
+				},
+				{
+					"dataset": {
+						"referenceName": "EnggEmployee",
+						"type": "DatasetReference"
+					},
+					"name": "EnggEmp"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeID as string,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          DepartmentID as string,",
+				"          Salary as string,",
+				"          JoinDate as string,",
+				"          City as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> HREmp",
+				"source(output(",
+				"          EmployeeID as string,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          DepartmentID as string,",
+				"          Salary as string,",
+				"          JoinDate as string,",
+				"          City as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> EnggEmp",
+				"HREmp, EnggEmp union(byName: true,",
+				"     partitionBy('hash', 1))~> union1"
+			]
+		}
+	}
+}

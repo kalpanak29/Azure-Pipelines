@@ -1,5 +1,5 @@
 {
-	"name": "Derived_Column",
+	"name": "Sort",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -9,16 +9,13 @@
 						"referenceName": "empDataset",
 						"type": "DatasetReference"
 					},
-					"name": "empData"
+					"name": "Employee"
 				}
 			],
 			"sinks": [],
 			"transformations": [
 				{
-					"name": "derivedColumn1"
-				},
-				{
-					"name": "derivedColumn2"
+					"name": "sort1"
 				}
 			],
 			"scriptLines": [
@@ -33,10 +30,9 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> empData",
-				"empData derive({Full Name} = concat(FirstName , \" \"),",
-				"     partitionBy('hash', 1)) ~> derivedColumn1",
-				"derivedColumn1 derive({Full Name New} = concat({Full Name}, LastName)) ~> derivedColumn2"
+				"     ignoreNoFilesFound: false) ~> Employee",
+				"Employee sort(asc(FirstName, true),",
+				"     partitionBy('hash', 1)) ~> sort1"
 			]
 		}
 	}

@@ -1,5 +1,5 @@
 {
-	"name": "dataflow2",
+	"name": "Union",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -20,11 +20,7 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [
-				{
-					"name": "union1"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
 				"source(output(",
 				"          EmployeeID as string,",
@@ -49,9 +45,7 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> EnggEmp",
-				"HREmp, EnggEmp union(byName: true,",
-				"     partitionBy('hash', 1))~> union1"
+				"     ignoreNoFilesFound: false) ~> EnggEmp"
 			]
 		}
 	}

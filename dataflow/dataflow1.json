@@ -47,7 +47,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> departments",
 				"Employees, departments exists(Employees@DepartmentID == departments@DepartmentID,",
-				"     negate:false,",
+				"     negate:true,",
 				"     partitionBy('hash', 1),",
 				"     broadcast: 'auto')~> exists1"
 			]

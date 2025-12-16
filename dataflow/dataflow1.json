@@ -48,6 +48,7 @@
 				"     ignoreNoFilesFound: false) ~> departments",
 				"Employees, departments exists(Employees@DepartmentID == departments@DepartmentID,",
 				"     negate:false,",
+				"     partitionBy('hash', 1),",
 				"     broadcast: 'auto')~> exists1"
 			]
 		}

@@ -1,0 +1,43 @@
+{
+	"name": "Pivot",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "empDatasetNew",
+						"type": "DatasetReference"
+					},
+					"name": "Emp"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "pivot1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeID as string,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          DepartmentID as string,",
+				"          Salary as string,",
+				"          JoinDate as string,",
+				"          City as string,",
+				"          Gender as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Emp",
+				"Emp pivot(groupBy(DepartmentID),",
+				"     pivotBy(Gender),",
+				"     {} = count(EmployeeID),",
+				"     columnNaming: '$N$V',",
+				"     lateral: true) ~> pivot1"
+			]
+		}
+	}
+}

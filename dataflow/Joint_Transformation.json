@@ -1,5 +1,5 @@
 {
-	"name": "Inner_Join_EmpData",
+	"name": "Joint_Transformation",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -9,7 +9,7 @@
 						"referenceName": "empDataset",
 						"type": "DatasetReference"
 					},
-					"name": "employeeData"
+					"name": "EmpData"
 				},
 				{
 					"dataset": {
@@ -22,10 +22,10 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "EmpWIthDeptData",
+						"referenceName": "DeptwiseEmloyees",
 						"type": "DatasetReference"
 					},
-					"name": "EmpWithDeptData",
+					"name": "sink1",
 					"rejectedDataLinkedService": {
 						"referenceName": "NewLinkedService",
 						"type": "LinkedServiceReference"
@@ -33,6 +33,9 @@
 				}
 			],
 			"transformations": [
+				{
+					"name": "aggregate1"
+				},
 				{
 					"name": "join1"
 				}
@@ -49,7 +52,7 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> employeeData",
+				"     ignoreNoFilesFound: false) ~> EmpData",
 				"source(output(",
 				"          DepartmentID as string,",
 				"          DepartmentName as string,",
@@ -58,7 +61,9 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> deptData",
-				"employeeData, deptData join(employeeData@DepartmentID == deptData@DepartmentID,",
+				"EmpData aggregate(groupBy(DepartmentID),",
+				"     Total_Employees = count(EmployeeID)) ~> aggregate1",
+				"aggregate1, deptData join(aggregate1@DepartmentID == deptData@DepartmentID,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -66,18 +71,18 @@
 				"join1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
-				"          Gender as string,",
-				"          {Total Customers} as string",
+				"          DepartmentID as string,",
+				"          DepartmentName as string,",
+				"          Location as string",
 				"     ),",
+				"     partitionFileNames:['DeptwiseEmployees'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     mapColumn(",
-				"          EmployeeID,",
-				"          FirstName,",
-				"          LastName,",
-				"          DepartmentID = employeeData@DepartmentID,",
-				"          DepartmentName",
-				"     )) ~> EmpWithDeptData"
+				"          DepartmentName,",
+				"          Location = Total_Employees",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}

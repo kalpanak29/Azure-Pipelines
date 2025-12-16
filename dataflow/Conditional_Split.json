@@ -1,0 +1,155 @@
+{
+	"name": "Conditional_Split",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "empDataset",
+						"type": "DatasetReference"
+					},
+					"name": "EmpData"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "HREmp",
+						"type": "DatasetReference"
+					},
+					"name": "HREmp",
+					"rejectedDataLinkedService": {
+						"referenceName": "NewLinkedService",
+						"type": "LinkedServiceReference"
+					}
+				},
+				{
+					"dataset": {
+						"referenceName": "FinEmp",
+						"type": "DatasetReference"
+					},
+					"name": "FinEmp",
+					"rejectedDataLinkedService": {
+						"referenceName": "NewLinkedService",
+						"type": "LinkedServiceReference"
+					}
+				},
+				{
+					"dataset": {
+						"referenceName": "EnggEmp",
+						"type": "DatasetReference"
+					},
+					"name": "EnggEmp",
+					"rejectedDataLinkedService": {
+						"referenceName": "NewLinkedService",
+						"type": "LinkedServiceReference"
+					}
+				},
+				{
+					"dataset": {
+						"referenceName": "MktgEmp",
+						"type": "DatasetReference"
+					},
+					"name": "MktgEmp",
+					"rejectedDataLinkedService": {
+						"referenceName": "NewLinkedService",
+						"type": "LinkedServiceReference"
+					}
+				},
+				{
+					"dataset": {
+						"referenceName": "OpnEmp",
+						"type": "DatasetReference"
+					},
+					"name": "OpnEmp"
+				},
+				{
+					"dataset": {
+						"referenceName": "OtherEmp",
+						"type": "DatasetReference"
+					},
+					"name": "OtherEmp",
+					"rejectedDataLinkedService": {
+						"referenceName": "NewLinkedService",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [
+				{
+					"name": "AllEmployees"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeID as string,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          DepartmentID as string,",
+				"          Salary as string,",
+				"          JoinDate as string,",
+				"          City as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> EmpData",
+				"EmpData split(equals(DepartmentID, '10'),",
+				"     equals(DepartmentID, '20'),",
+				"     equals(DepartmentID, '30'),",
+				"     equals(DepartmentID, '40'),",
+				"     equals(DepartmentID, '50'),",
+				"     disjoint: false) ~> AllEmployees@(HREmployees, FinEmployees, EnggEmployees, MktgEmployees, OpnEmployees, OtherEmployees)",
+				"AllEmployees@HREmployees sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Gender as string,",
+				"          {Total Customers} as string",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> HREmp",
+				"AllEmployees@FinEmployees sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Gender as string,",
+				"          {Total Customers} as string",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> FinEmp",
+				"AllEmployees@EnggEmployees sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Gender as string,",
+				"          {Total Customers} as string",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> EnggEmp",
+				"AllEmployees@MktgEmployees sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Gender as string,",
+				"          {Total Customers} as string",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> MktgEmp",
+				"AllEmployees@OpnEmployees sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Gender as string,",
+				"          {Total Customers} as string",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> OpnEmp",
+				"AllEmployees@OtherEmployees sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Gender as string,",
+				"          {Total Customers} as string",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> OtherEmp"
+			]
+		}
+	}
+}

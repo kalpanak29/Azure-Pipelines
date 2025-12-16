@@ -1,0 +1,32 @@
+{
+	"name": "HREmp",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NewLinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "DF_output",
+				"container": "adlscontainer"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Gender",
+				"type": "String"
+			},
+			{
+				"name": "Total Customers",
+				"type": "String"
+			}
+		]
+	}
+}
